@@ -15,7 +15,7 @@ app.use(express.json());
 // app.use(express.static(path.join(__dirname, 'public')));
 
 // Porta injetada automaticamente pelo Render (ou 3000 localmente)
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 // Rota principal do chat
 app.post('/api/chat', async (req, res) => {
