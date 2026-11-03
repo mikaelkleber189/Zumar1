@@ -72,4 +72,21 @@ app.post('/api/chat', async (req, res) => {
         const respostaTexto = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!respostaTexto) {
-            console
+            console.error("Formato inesperado:", data);
+            return res.status(500).json({ erro: "A resposta da IA veio em formato inválido." });
+        }
+
+        return res.json({ resposta: respostaTexto });
+
+    } catch (error) {
+        console.error("ERRO CRÍTICO NO CATCH:", error);
+        return res.status(500).json({ 
+            erro: "Erro ao processar a mensagem. Verifique a API do Gemini",
+            excecao: error.message 
+        });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
