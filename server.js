@@ -1,86 +1,85 @@
-import express from 'express';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { GoogleGenAI } from '@google/genai';
-import dotenv from 'dotenv';
-
-dotenv.config();
+const express = require('express');
+const cors = require('cors');
 
 const app = express();
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = process.env.PORT || 10000;
 
-// Configurações
-app.use(express.json({ limit: '1mb' }));
-app.use(express.static(__dirname));
+// Middlewares essenciais
+app.use(express.json());
+app.use(cors());
 
-// Conexão com Gemini
-const apiKey = process.env.GEMINI_API_KEY;
+// Porta injetada automaticamente pelo Render (ou 3000 localmente)
+const PORT = process.env.PORT || 3000;
 
-const ai = apiKey
-    ? new GoogleGenAI({ apiKey })
-    : null;
-
-// Rota de comunicação com a IA
+// Rota principal do chat
 app.post('/api/chat', async (req, res) => {
     try {
-        if (!ai) {
-            return res.status(503).json({
-                error: 'API do Gemini não configurada. Verifique GEMINI_API_KEY.'
-            });
+        const { mensagem } = req.body;
+
+        if (!mensagem) {
+            return res.status(400).json({ erro: "A mensagem não pode estar vazia." });
         }
 
-        // Aceita message ou prompt
-        const message =
-            typeof req.body?.message === 'string'
-                ? req.body.message.trim()
-                : typeof req.body?.prompt === 'string'
-                    ? req.body.prompt.trim()
-                    : '';
+        // 1. Pega a chave do Environment do Render
+        const apiKey = process.env.GEMINI_API_KEY;
 
-        // Instruções do assistente
-        const instructions =
-            typeof req.body?.instructions === 'string'
-                ? req.body.instructions.slice(0, 5000).trim()
-                : 'Você é o Zumar, um assistente útil e inteligente. Responda em português brasileiro.';
-
-        if (!message) {
-            return res.status(400).json({
-                error: 'Digite uma mensagem antes de enviar.'
-            });
+        if (!apiKey) {
+            console.error("ERRO: GEMINI_API_KEY não configurada.");
+            return res.status(500).json({ erro: "Erro de configuração no servidor." });
         }
 
-        if (message.length > 12000) {
-            return res.status(413).json({
-                error: 'Mensagem muito longa.'
-            });
-        }
+        // 2. URL oficial com o modelo atualizado
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-        // Chamada ao Gemini
-        const response = await ai.models.generateContent({
-            model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
-            contents: `${instructions}\n\nMensagem do usuário: ${message}`
+        // 3. Monta o payload no formato exigido pela API
+        const payload = {
+            contents: [
+                {
+                    parts: [
+                        { text: mensagem }
+                    ]
+                }
+            ]
+        };
+
+        // 4. Requisição via fetch nativo do Node.js
+        const apiResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
         });
 
-        return res.json({
-            text: response.text || 'Não consegui gerar uma resposta.'
-        });
+        const data = await apiResponse.json();
+
+        // 5. Validação de erro retornado pela API do Google
+        if (!apiResponse.ok) {
+            console.error("Erro retornado pela API do Google:", data);
+            return res.status(500).json({ 
+                erro: "Erro ao processar a mensagem. Verifique a API do Gemini",
+                detalhes: data.error?.message || "Erro desconhecido"
+            });
+        }
+
+        // 6. Extração segura da resposta
+        const respostaTexto = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!respostaTexto) {
+            console.error("Formato inesperado:", data);
+            return res.status(500).json({ erro: "A resposta da IA veio em formato inválido." });
+        }
+
+        return res.json({ resposta: respostaTexto });
 
     } catch (error) {
-        console.error('Erro ao comunicar com o Gemini:', error);
-
-        return res.status(500).json({
-            error: 'Erro ao processar a mensagem. Verifique a API do Gemini.'
+        console.error("ERRO CRÍTICO NO CATCH:", error);
+        return res.status(500).json({ 
+            erro: "Erro ao processar a mensagem. Verifique a API do Gemini",
+            excecao: error.message 
         });
     }
 });
 
-// Página inicial
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Zumar-para-celular.html'));
-});
-
-// Inicialização
 app.listen(PORT, () => {
-    console.log(`Zumar rodando na porta ${PORT}`);
+    console.log(`Servidor rodando na porta ${PORT}`);
 });
