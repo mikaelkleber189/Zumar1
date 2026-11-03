@@ -1,10 +1,18 @@
 import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Configuração do __dirname para módulos ES (ESM)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const path = "path";
 
 // Middlewares essenciais
 app.use(express.json());
+
+// Se quiser servir a sua pasta frontend (opcional, descomente se precisar):
+// app.use(express.static(path.join(__dirname, 'public')));
 
 // Porta injetada automaticamente pelo Render (ou 3000 localmente)
 const PORT = process.env.PORT || 3000;
@@ -64,27 +72,4 @@ app.post('/api/chat', async (req, res) => {
         const respostaTexto = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!respostaTexto) {
-            console.error("Formato inesperado:", data);
-            return res.status(500).json({ erro: "A resposta da IA veio em formato inválido." });
-        }
-
-        return res.json({ resposta: respostaTexto });
-
-    } catch (error) {
-        console.error("ERRO CRÍTICO NO CATCH:", error);
-        return res.status(500).json({ 
-            erro: "Erro ao processar a mensagem. Verifique a API do Gemini",
-            excecao: error.message 
-        });
-    }
-});
-
-app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "Zumar-para-celular.html")
-    );
-});
-
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-});
+            console
