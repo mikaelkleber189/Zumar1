@@ -29,10 +29,11 @@ app.post('/api/chat', async (req, res) => {
         res.status(500).json({ error: 'Erro interno ao processar a IA.' });
     }
 });
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "Zumar-para-celular.html"));
-});
+
+app.get("/", (req, res) => {res.sendFile(path.join(__dirname, "Zumar-para-celular.html"
+));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Servidor rodando na porta ${PORT`);
 });
