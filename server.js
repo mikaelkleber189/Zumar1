@@ -1,5 +1,6 @@
 const express = require('express');
 const { GoogleGenAI } = require('@google/genai');
+const path = require("path");
 
 const app = express();
 app.use(express.json());
