@@ -31,4 +31,7 @@ app.post('/api/chat', async (req, res) => {
     res.status(500).json({ error: 'Ocorreu um erro ao consultar a IA. Verifique a configuração do servidor e tente novamente.' });
   }
 });
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname,"index.html"));
+});
 app.listen(port, () => console.log(`Zumar disponível em http://localhost:${port}`));
