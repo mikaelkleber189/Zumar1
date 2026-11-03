@@ -32,6 +32,6 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname,"index.html"));
+    res.sendFile(path.join(__dirname,"Zumar-para-celular.html"));
 });
 app.listen(port, () => console.log(`Zumar disponível em http://localhost:${port}`));
