@@ -1,14 +1,15 @@
 {
   "name": "zumar-platform",
   "version": "1.0.0",
-  "description": "Site com IA Gemini no Render",
-  "main": "server.js",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js"
   },
   "dependencies": {
-    "@google/genai": "latest",
-    "express": "^4.19.2",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "@google/genai": "^1.0.0"
   }
 }
