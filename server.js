@@ -78,6 +78,14 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
+app.get("/", (req, res) => {
+    res.sendFile(
+        path.join(__dirname, "Zumar-para-celular.html")
+    );
+});
+
+const PORT = process.env.PORT || 10000;
+
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
