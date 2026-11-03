@@ -18,11 +18,10 @@ app.post('/api/chat', async (req, res) => {
             return res.status(400).json({ error: 'O prompt é obrigatório.' });
         }
 
-        // Chamada utilizando o modelo recomendado
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-        });
+    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    contents: prompt,
+});
 
         res.json({ text: response.text });
     } catch (error) {
