@@ -27,8 +27,8 @@ app.post('/api/chat', async (req, res) => {
             return res.status(500).json({ erro: "Erro de configuração no servidor." });
         }
 
-        // 2. URL oficial com o modelo atualizado
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        // 2. URL oficial atualizada com o modelo exigido pelo erro (gemini-3.8-flash)
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
 
         // 3. Monta o payload no formato exigido pela API
         const payload = {
