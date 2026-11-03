@@ -1,11 +1,9 @@
 import express from 'express';
-import cors from 'cors';
 
 const app = express();
 
 // Middlewares essenciais
 app.use(express.json());
-app.use(cors());
 
 // Porta injetada automaticamente pelo Render (ou 3000 localmente)
 const PORT = process.env.PORT || 3000;
