@@ -62,7 +62,32 @@ function icons(){if(window.lucide)lucide.createIcons()}function toast(t){$('toas
 function toggleSidebar(){$('sidebar').classList.toggle('open')}function newChat(){conversation=[];localStorage.setItem('zumar_history','[]');$('chatMessages').innerHTML='';$('homeMessages').innerHTML='<div class="msg"><span class="msgavatar"><i data-lucide="sparkles"></i></span><div class="bubble"><p>Nova conversa iniciada. O que vamos criar?</p></div></div>';renderHistory();showPage('chat');icons()}
 function renderHistory(){const el=$('history');el.innerHTML='';conversation.slice(-8).reverse().forEach((m,i)=>{if(m.role==='user'){const b=document.createElement('button');b.innerHTML='<i data-lucide="message-circle" size="14"></i>';b.append(document.createTextNode(' '+m.text.slice(0,26)));b.onclick=()=>{showPage('chat');toast('Conversa recente carregada apenas nesta sessão.')};el.append(b)}});icons()}
 function addMessage(container,role,text){const row=document.createElement('div');row.className='msg '+(role==='user'?'user':'');const av=document.createElement('span');av.className='msgavatar';av.innerHTML=role==='user'?'<i data-lucide="user" size="15"></i>':'<i data-lucide="sparkles" size="15"></i>';const bubble=document.createElement('div');bubble.className='bubble';const p=document.createElement('p');p.textContent=text;bubble.append(p);row.append(av,bubble);$(container).append(row);$(container).scrollTop=$(container).scrollHeight;icons()}
-async function askAI(prompt,system='Você é o Zumar, um assistente útil, claro e responsável. Responda em português brasileiro. Não afirme que executou ações externas que não executou.'){const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,instructions:system})});if(!response.ok){let e={};try{e=await response.json()}catch{}throw new Error(e.error||'Não foi possível conectar à IA. Verifique o servidor.')}const data=await response.json();return data.text}
+async function askAI(prompt) {
+    try {
+        // 1. Coloque o URL COMPLETO do seu projeto no Render
+        const resposta = await fetch('https://NOME-DO-SEU-PROJETO.onrender.com/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                mensagem: prompt 
+            })
+        });
+
+        const data = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(data.detalhes || data.erro || "Não foi possível conectar a IA. Verifique o servidor.");
+        }
+
+        // 2. Altere de data.text para data.resposta (que é o que o server.js envia)
+        return data.resposta;
+
+    } catch (err) {
+        throw new Error("Não foi possível conectar a IA. Verifique o servidor.");
+    }
+}const data=await response.json();return data.text}
 async function sendMessage(event,inputId,container){event.preventDefault();const input=$(inputId),text=input.value.trim();if(!text)return;input.value='';addMessage(container,'user',text);conversation.push({role:'user',text});localStorage.setItem('zumar_history',JSON.stringify(conversation));renderHistory();const wait=document.createElement('div');wait.className='msg';wait.innerHTML='<span class="msgavatar">✦</span><div class="bubble">Pensando...</div>';$(container).append(wait);try{const answer=await askAI(text);wait.remove();addMessage(container,'assistant',answer);conversation.push({role:'assistant',text:answer});localStorage.setItem('zumar_history',JSON.stringify(conversation));}catch(err){wait.remove();addMessage(container,'assistant',err.message+' Enquanto isso, configure o servidor seguindo o README.')} }
 function openTool(id){currentTool=id;$('toolTitle').textContent=toolInfo[id][0];$('toolDesc').textContent=toolInfo[id][1];$('toolBrief').value='';$('toolResult').textContent='';$('downloadResult').classList.add('hidden');showPage('tool')}
 async function runTool(e){e.preventDefault();const brief=$('toolBrief').value.trim();if(!brief)return toast('Descreva o que você precisa primeiro.');$('toolSubmit').disabled=true;$('toolSubmit').textContent='Gerando...';$('toolResult').textContent='O Zumar está preparando seu material...';try{lastOutput=await askAI(brief,toolInfo[currentTool][2]+' Responda em português brasileiro. Seja específico e organizado.');$('toolResult').textContent=lastOutput;$('downloadResult').classList.remove('hidden')}catch(err){$('toolResult').textContent=err.message+'\n\nPara ativar a IA, execute o servidor descrito no README.'}finally{$('toolSubmit').disabled=false;$('toolSubmit').innerHTML='<i data-lucide="sparkles"></i> Gerar com IA';icons()}}
