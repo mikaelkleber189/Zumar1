@@ -30,7 +30,7 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "Zumar-.html"));
+    res.sendFile(path.join(__dirname, "Zumar-para-celular.html"));
 });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
