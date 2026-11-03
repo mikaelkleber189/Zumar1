@@ -1,5 +1,5 @@
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import cors from 'cors';
 
 const app = express();
 
@@ -27,7 +27,7 @@ app.post('/api/chat', async (req, res) => {
             return res.status(500).json({ erro: "Erro de configuração no servidor." });
         }
 
-        // 2. URL oficial atualizada com o modelo exigido pelo erro (gemini-3.8-flash)
+        // 2. URL oficial com o modelo correto
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
 
         // 3. Monta o payload no formato exigido pela API
