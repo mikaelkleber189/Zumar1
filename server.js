@@ -1,6 +1,7 @@
 import express from 'express';
 
 const app = express();
+const path = "path";
 
 // Middlewares essenciais
 app.use(express.json());
